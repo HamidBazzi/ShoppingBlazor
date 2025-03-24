@@ -15,7 +15,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Data\NewFolder\" />
     <Folder Include="Services\Extensions\" />
     <Folder Include="Services\" />
     <Folder Include="Repository\IRepository\" />
