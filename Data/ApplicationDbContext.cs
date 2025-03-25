@@ -13,8 +13,8 @@ namespace ShoppingBlazor.Data
 
             builder.Entity<Category>().HasData(
                 new Category { Id = 1, Name = "Breakfast" },
-                new Category { Id = 1, Name = "Lunch" },
-                new Category { Id = 1, Name = "Dinner" }
+                new Category { Id = 2, Name = "Lunch" },
+                new Category { Id = 3, Name = "Dinner" }
             );
         }
     }
