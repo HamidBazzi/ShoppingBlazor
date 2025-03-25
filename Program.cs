@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using ShoppingBlazor.Components;
 using ShoppingBlazor.Components.Account;
 using ShoppingBlazor.Data;
+using ShoppingBlazor.Repository;
+using ShoppingBlazor.Repository.IRepository;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +14,7 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 builder.Services.AddCascadingAuthenticationState();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IdentityUserAccessor>();
 builder.Services.AddScoped<IdentityRedirectManager>();
 builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
