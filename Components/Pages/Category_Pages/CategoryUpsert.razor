@@ -1,7 +1,8 @@
 ﻿@page "/category/create"
-@page "/category/update/{id:int}"
+@page "/category/update/{Id:int}"
 @inject ICategoryRepository _categoryRepository
 @inject NavigationManager _navigationManager
+
 
 @if (IsProcessing)
 {
@@ -20,7 +21,7 @@ else
             </div>
         </div>
         <div class="card-body p-4">
-            <EditForm Model="Category" FormName="CategoryUpsertForm" OnInvalidSubmit="UpsertCategory">
+            <EditForm Model="Category" FormName="CategoryUpsertForm" OnValidSubmit="UpsertCategory">
                 <DataAnnotationsValidator />
                 <div class="border p-3 mt-4">
                     <div class="form-floating py-3 col-12">
@@ -35,7 +36,7 @@ else
                             </button>
                         </div>
                         <div class="col-6 col-md-3">
-                            <a href="category" class="btn btn-secondary form-control" disabled="@IsProcessing">
+                            <a href="/category" class="btn btn-secondary form-control" disabled="@IsProcessing">
                                 <i class="bi bi-arrow-bar-left"></i> Back to list
                             </a>
                         </div>
@@ -46,11 +47,11 @@ else
     </div>
 }
 
+
 @code {
     [Parameter]
     public int Id { get; set; }
 
-    [SupplyParameterFromForm]
     private Category Category { get; set; } = new Category();
 
     private bool IsProcessing { get; set; } = true;
@@ -70,24 +71,31 @@ else
         if (Id > 0)
         {
             Category = await _categoryRepository.GetAsync(Id);
-
         }
     }
 
     private async Task UpsertCategory()
     {
-        IsProcessing = true;
-        if (Category.Id == 0)
+        try
         {
-            // Create
-            await _categoryRepository.CreateAsync(Category);
+            IsProcessing = true;
+            if (Category.Id == 0)
+            {
+                await _categoryRepository.CreateAsync(Category);
+            }
+            else
+            {
+                await _categoryRepository.UpdateAsync(Category);
+            }
         }
-        else
+        catch (Exception ex)
         {
-            // Update
-            await _categoryRepository.UpdateAsync(Category);
+            Console.WriteLine($"Error: {ex.Message}");
         }
-        IsProcessing = false;
-        _navigationManager.NavigateTo("/category");
+        finally
+        {
+            IsProcessing = false;
+            _navigationManager.NavigateTo("/category");
+        }
     }
 }
