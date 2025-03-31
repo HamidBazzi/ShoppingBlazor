@@ -2,6 +2,7 @@
 @page "/category/update/{Id:int}"
 @inject ICategoryRepository _categoryRepository
 @inject NavigationManager _navigationManager
+@inject IJSRuntime _jsRuntime
 
 
 @if (IsProcessing)
@@ -76,26 +77,20 @@ else
 
     private async Task UpsertCategory()
     {
-        try
+
+        IsProcessing = true;
+        if (Category.Id == 0)
         {
-            IsProcessing = true;
-            if (Category.Id == 0)
-            {
-                await _categoryRepository.CreateAsync(Category);
-            }
-            else
-            {
-                await _categoryRepository.UpdateAsync(Category);
-            }
+            await _categoryRepository.CreateAsync(Category);
+            await _jsRuntime.ToastrSuccess("Category Created Successfully");
         }
-        catch (Exception ex)
+        else
         {
-            Console.WriteLine($"Error: {ex.Message}");
+            await _categoryRepository.UpdateAsync(Category);
+            await _jsRuntime.ToastrSuccess("Category Updated Successfully");
         }
-        finally
-        {
-            IsProcessing = false;
-            _navigationManager.NavigateTo("/category");
-        }
+        IsProcessing = false;
+        _navigationManager.NavigateTo("/category");
     }
+}
 }
