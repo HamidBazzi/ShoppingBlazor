@@ -1,6 +1,10 @@
 ﻿@page "/"
+@inject AuthenticationStateProvider _AuthenticationStateProvider
+@inject IJSRuntime _JS
+@inject NavigationManager UriHelper
 @inject IProductRepository _productRepository
 @inject ICategoryRepository _categoryRepository
+@inject IShoppingCartRepository _cartRepository
 
 
 @if (IsProcessing)
@@ -30,10 +34,11 @@ else
                 <li class="nav-item">
                     <span class="nav-link @GetActiveTabClass(0)" href="#" style="cursor: pointer" @onclick="()=>FilterProducts(0)">All</span>
                 </li>
-                @foreach(var category in Categories) {
-                <li class="nav-item">
-                    <span class="nav-link @GetActiveTabClass(category.Id)" href="#" style="cursor: pointer" @onclick="()=>FilterProducts(category.Id)">@category.Name</span>
-                </li>
+                @foreach (var category in Categories)
+                {
+                    <li class="nav-item">
+                        <span class="nav-link @GetActiveTabClass(category.Id)" href="#" style="cursor: pointer" @onclick="()=>FilterProducts(category.Id)">@category.Name</span>
+                    </li>
                 }
             </ul>
             <div class="row mt-4 mx-1">
@@ -67,7 +72,9 @@ else
                                 <h5 class="card-title text-center lead text-success">@prod.Name</h5>
                                 <p class="card-text mt-2">@((MarkupString)@prod.Description)</p>
                                 <h4 class="text-center">
-                                    <i class="bi bi-cart3 btn btn-success text-right px-5 form-control"> Add to cart</i>
+                                    <div class="m-lg-auto p-2" @onclick="()=>AddOrderItem(prod)">
+                                        <i class="bi bi-cart3 btn btn-success text-right px-5 form-control"> Add to cart</i>
+                                    </div>
                                 </h4>
                             </div>
                         </div>
@@ -106,7 +113,7 @@ else
 
     private void FilterProducts(int categoryId)
     {
-        if(categoryId == 0)
+        if (categoryId == 0)
         {
             FilteredProducts = Products;
             _selectedCategoryId = categoryId;
@@ -137,5 +144,32 @@ else
     private string GetActiveTabClass(int categoryId)
     {
         return categoryId == _selectedCategoryId ? "active" : string.Empty;
+    }
+
+    private async Task AddOrderItem(Product product)
+    {
+        var authState = await _AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        var authenticated = user.Identity is not null && user.Identity.IsAuthenticated;
+
+        // If user is not authenticated then redirect to login
+        if (!authenticated)
+        {
+            UriHelper.NavigateTo("/Account/Login", forceLoad: true);
+        }
+        else
+        {
+            // Add item to cart
+            var result = await _cartRepository.UpdateCartAsync(user.FindFirst(u => u.Type.Contains("nameidentifier"))?.Value, product.Id, 1);
+
+            if (result)
+            {
+                _JS?.ToastrSuccess("Product added to cart successfully");
+            }
+            else
+            {
+                _JS?.ToastrError("Error encountered");
+            }
+        }
     }
 }
