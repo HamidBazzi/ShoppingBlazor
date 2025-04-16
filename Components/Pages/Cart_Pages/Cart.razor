@@ -4,6 +4,7 @@
 @inject IOrderRepository _orderRepository
 @inject NavigationManager _navigationManager
 @attribute [Microsoft.AspNetCore.Authorization.Authorize]
+@inject ShoppingBlazor.Services.SharedStateService _sharedStateService
 
 @if (IsProcessing)
 {
@@ -162,6 +163,7 @@ else
     {
         // Add item to cart
         var result = await _cartRepository.UpdateCartAsync(OrderHeader.UserId, productId, updateBy);
+        _sharedStateService.TotalCartCount = await _cartRepository.GetTotalCartCountAsync(OrderHeader.UserId);
         await LoadCart();
     }
 

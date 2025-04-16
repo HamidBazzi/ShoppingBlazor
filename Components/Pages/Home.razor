@@ -5,6 +5,7 @@
 @inject IProductRepository _productRepository
 @inject ICategoryRepository _categoryRepository
 @inject IShoppingCartRepository _cartRepository
+@inject ShoppingBlazor.Services.SharedStateService _sharedStateService
 
 <PageTitle>Home</PageTitle>
 
@@ -161,7 +162,9 @@ else
         else
         {
             // Add item to cart
-            var result = await _cartRepository.UpdateCartAsync(user.FindFirst(u => u.Type.Contains("nameidentifier"))?.Value, product.Id, 1);
+            var userId = user.FindFirst(u => u.Type.Contains("nameidentifier"))?.Value;
+            var result = await _cartRepository.UpdateCartAsync(userId, product.Id, 1);
+            _sharedStateService.TotalCartCount = await _cartRepository.GetTotalCartCountAsync(userId);
 
             if (result)
             {
