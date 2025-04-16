@@ -7,6 +7,7 @@ using ShoppingBlazor.Components.Account;
 using ShoppingBlazor.Data;
 using ShoppingBlazor.Repository;
 using ShoppingBlazor.Repository.IRepository;
+using ShoppingBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,6 +23,7 @@ builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IdentityUserAccessor>();
 builder.Services.AddScoped<IdentityRedirectManager>();
 builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
+builder.Services.AddSingleton<SharedStateService>();
 builder.Services.AddRadzenComponents();
 builder.Services.AddAuthentication(options =>
     {
